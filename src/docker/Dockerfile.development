@@ -1,0 +1,49 @@
+# pull official base image
+FROM python:3.8.2-alpine
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# create Django directory for the app user
+ENV APP_HOME=/usr/src
+RUN mkdir -p $APP_HOME && \
+    mkdir $APP_HOME/staticfiles && \
+    mkdir $APP_HOME/mediafiles
+
+# create the app user
+RUN addgroup -S question && adduser -S question -G question
+
+# set work directory
+WORKDIR $APP_HOME
+
+# install dependencies
+
+RUN apk update && \
+    apk add postgresql-dev gcc python3-dev musl-dev libpq && \
+    apk add curl && \
+    pip install --upgrade pip && \
+    pip install psycopg2
+
+COPY ./poetry.lock $APP_HOME
+COPY ./poetry.lock $APP_HOME
+
+RUN curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+RUN cd $APP_HOME
+    poetry config virtualenvs.create false && \
+    poetry install
+
+# copy entrypoint shell file
+COPY docker/entrypoint.development.sh $APP_HOME
+
+# copy project
+COPY . $APP_HOME
+
+# chown all the files to the app user
+RUN chown -R question:question $APP_HOME
+
+# change to the app user
+USER question
+
+# run entrypoint shell file
+ENTRYPOINT ["/usr/src/docker/entrypoint.development.sh"]
