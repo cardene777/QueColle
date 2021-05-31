@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}問題{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="bg-light p-3 p-sm-5 my-4 rounded">
+            <h1 class="display-4">問題</h1>
+            <hr class="my-4">
+            <p>{{ question_number }}問目</p>
+        </div>
+    </div>
+    <div class="container">
+        <form action="{% url 'question:answer' %}" method="post">
+            {% csrf_token %}
+            <h4>{{ one_questions.question }}</h4>
+            <input hidden type="text" name="questions" value="{{ questions }}">
+            <input hidden type="text" name="question_id" value="{{ one_questions.id }}">
+            <div class="mb-3" style="margin-top: 2rem">
+                <label for="answer" class="form-label">解答してください。</label>
+                <input type="text" class="form-control" id="answer" name="answer" placeholder="解答">
+            </div>
+            <button type="submit" class="btn btn-secondary" style="margin-top: 1rem"
+                    onclick='return confirm("送信しますか？");'>
+                送信
+            </button>
+            <input hidden id="nexr-question" type="submit" value="次の問題へ" style="margin: 5px 0">
+        </form>
+    </div>
+{% endblock %}

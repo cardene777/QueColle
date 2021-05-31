@@ -1,3 +1,6 @@
 .idea/
 db.sqlite3
 __pycache__/
+.env.development
+media/
+__pycache__/
