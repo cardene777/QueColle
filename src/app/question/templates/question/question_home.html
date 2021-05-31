@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}問題集一覧{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="bg-light p-3 p-sm-5 my-4 rounded">
+            <h1 class="display-4">問題集一覧</h1>
+            <hr class="my-4">
+            <p>問題を解きましょう！</p>
+        </div>
+    </div>
+    <div class="container">
+        <div class="container">
+            <div class="row">
+                {% for question_collect in question_collects %}
+                    <div class="card col-4" style="width: 18rem; margin-top: 2rem; margin-bottom: 1rem">
+                        <img src="{{ question_collect.image.url }}" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ question_collect.collection }}</h5>
+                            <p class="card-text">{{ question_collect.about }}</p>
+                            <a href="{% url 'question:about' question_collect.pk %}" class="btn stretched-link"
+                               style="background-color: #77c7e2; color: #303f42;" tabindex="-1" role="button"
+                               aria-disabled="true">
+                                Go Question
+                                <i class="fas fa-info-circle"></i>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

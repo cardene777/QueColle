@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}問題概要{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="bg-light p-3 p-sm-5 my-4 rounded">
+            <h1 class="display-4">{{ question_collection.collection }}概要</h1>
+            <hr class="my-4">
+            <p>{{ question_collection.about }}</p>
+            <a href="{% url 'question:home' %}" class="btn"
+               style="background-color: #77c7e2; color: #303f42;" tabindex="-1" role="button">
+                一覧に戻る
+                <i class="far fa-list-alt"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="container">
+        <hr>
+        <h4>合計<span style="color: red">{{ length }}</span>問あります。</h4>
+        <hr>
+        <h5><strong>***注意事項***</strong></h5>
+        {% if question_collection.attention %}
+            <p>{{ question_collection.attention }}</p>
+        {% else %}
+            <p>特になし。</p>
+        {% endif %}
+        <a href="{% url 'question:question' question_collection.id %}" class="btn"
+               style="background-color: #77c7e2; color: #303f42;" tabindex="-1" role="button">
+                問題スタート
+                <i class="fas fa-play"></i>
+            </a>
+    </div>
+{% endblock %}
