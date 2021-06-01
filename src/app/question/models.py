@@ -18,7 +18,7 @@ class QuestionCollection(models.Model):
     image = models.ImageField(
         verbose_name='画像',
         upload_to='images/',
-        default='images/question.png',
+        default='default_image/question.png',
         blank=True,
     )
 

@@ -3,28 +3,82 @@
 {% block title %}問題{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <div class="bg-light p-3 p-sm-5 my-4 rounded">
-            <h1 class="display-4">問題</h1>
-            <hr class="my-4">
-            <p>{{ question_number }}問目</p>
-        </div>
-    </div>
-    <div class="container">
-        <form action="{% url 'question:answer' %}" method="post">
-            {% csrf_token %}
-            <h4>{{ one_questions.question }}</h4>
-            <input hidden type="text" name="questions" value="{{ questions }}">
-            <input hidden type="text" name="question_id" value="{{ one_questions.id }}">
-            <div class="mb-3" style="margin-top: 2rem">
-                <label for="answer" class="form-label">解答してください。</label>
-                <input type="text" class="form-control" id="answer" name="answer" placeholder="解答">
+    {% if message == 'answer' %}
+        <div class="container">
+            <div class="bg-light p-3 p-sm-5 my-4 rounded">
+                <h1 class="display-4">解答結果</h1>
+                <hr class="my-4">
+                <p>正解どうかを確認して、答えをしっかり確認してください。</p>
             </div>
-            <button type="submit" class="btn btn-secondary" style="margin-top: 1rem"
-                    onclick='return confirm("送信しますか？");'>
-                送信
-            </button>
-            <input hidden id="nexr-question" type="submit" value="次の問題へ" style="margin: 5px 0">
-        </form>
-    </div>
+        </div>
+        <div class="container">
+            <form action="{% url 'question:question' collection_id %}" method="post">
+                {% csrf_token %}
+                <p id="next_question_timer">5</p>
+                <h3>{{ judge }}</h3>
+                {% if judge == "不正解" %}
+                    <p>正解は{{ correct_answer }}</p>
+                {% endif %}
+                <input hidden type="text" name="questions" value="{{ questions }}">
+                <input hidden id="nexr-question" type="submit" value="次の問題へ" style="margin: 5px 0">
+            </form>
+        </div>
+        <script>
+            let count = 0;
+            const countUp = () =>{
+                console.log(count++);
+            }
+            const intervalId = setInterval(() =>{
+                countUp();
+                document.querySelector('#next_question_timer').textContent=6-count;
+                if(count > 5){　
+                    clearInterval(intervalId);　//intervalIdをclearIntervalで指定している
+                    {#alert('次の問題に進んでください！！！');#}
+                    document.getElementById('nexr-question').click();
+                }
+            }, 1000);
+        </script>
+    {% else %}
+        <div class="container">
+            <div class="bg-light p-3 p-sm-5 my-4 rounded">
+                <h1 class="display-4">問題</h1>
+                <hr class="my-4">
+                <p>{{ question_number }}問目</p>
+            </div>
+        </div>
+        <div class="container">
+            <form action="{% url 'question:answer' %}" method="post">
+                {% csrf_token %}
+                <p id="answer_timer">15</p>
+                <h4>{{ one_questions.question }}</h4>
+                <input hidden type="text" name="questions" value="{{ questions }}">
+                <input hidden type="text" name="question_id" value="{{ one_questions.id }}">
+                <input hidden type="text" name="collection_id" value="{{ collection_id }}">
+                <div class="mb-3" style="margin-top: 2rem">
+                    <label for="answer" class="form-label">解答してください。</label>
+                    <input type="text" class="form-control" id="answer" name="answer" placeholder="解答">
+                </div>
+                <button type="submit" class="btn btn-secondary" style="margin-top: 1rem"
+                        onclick='return confirm("送信しますか？");'>
+                    送信
+                </button>
+                <input hidden id="answer-submit" type="submit" value="解答" style="margin: 5px 0">
+            </form>
+        </div>
+        <script>
+                let count = 0;
+                const countUp = () =>{
+                    console.log(count++);
+                }
+                const intervalId = setInterval(() =>{
+                    countUp();
+                    document.querySelector('#answer_timer').textContent=16-count;
+                    if(count > 15){　
+                        clearInterval(intervalId);　//intervalIdをclearIntervalで指定している
+                        {#alert('回答ボタンを押してください！！！');#}
+                        document.getElementById('answer-submit').click();
+                    }
+                }, 1000);
+            </script>
+    {% endif %}
 {% endblock %}
