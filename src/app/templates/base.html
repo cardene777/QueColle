@@ -41,7 +41,7 @@
                         {% endif %}
                         {% if user.is_authenticated %}
                             <li class="nav-item active">
-                                <a class="nav-link" href="{% url 'accounts:login' %}"
+                                <a class="nav-link" href="{% url 'accounts:profile' %}"
                                     style="font-weight: bold">
                                     {{ user.username }}
                                 </a>

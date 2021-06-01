@@ -58,3 +58,48 @@ class Question(models.Model):
         return str(self.question)
 
 
+class Data(models.Model):
+    class Meta:
+        verbose_name = '解答データ'
+        verbose_name_plural = '解答データ'
+
+    collection = models.ForeignKey(
+        QuestionCollection,
+        verbose_name='所属問題集名',
+        on_delete=models.CASCADE
+    )
+
+    question = models.ForeignKey(
+        Question,
+        verbose_name='所属問題',
+        on_delete=models.CASCADE
+    )
+
+    user = models.CharField(
+        verbose_name="ユーザー名",
+        max_length=100
+    )
+
+    CHOICES_JUDGE = (
+        ("正解", "good"),
+        ("不正解", "bad"),
+    )
+
+    judge = models.CharField(
+        verbose_name="正誤",
+        max_length=10,
+        choices=CHOICES_JUDGE
+    )
+
+    answer_time = models.IntegerField(
+        verbose_name="解答時間",
+        default=10000
+    )
+
+    correct_answer = models.TextField(
+        verbose_name="問題正解",
+    )
+
+    user_answer = models.TextField(
+        verbose_name="ユーザー解答"
+    )
