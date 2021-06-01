@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}問題集作成{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="bg-light p-3 p-sm-5 my-4 rounded">
+            <h1 class="display-4">問題作成</h1>
+            <hr class="my-4">
+            <p>問題を作成できます。</p>
+        </div>
+    </div>
+    <div class="container">
+        <form action="{% url 'question:create_question' 0 %}" method="POST">
+            {% csrf_token %}
+            <select hidden name="collection" class="form-control" id="collection" placeholder="問題集名" required="">
+                <option value="{{ collection_id }}" selected>{{ collection_name }}</option>
+            </select>
+            <p>{{ form.question }}</p>
+            <p>{{ form.correct }}</p>
+            <p>{{ form.explanation }}</p>
+            <button type="submit" class="btn btn-secondary" style="margin-bottom: 3rem"
+                    onclick='return confirm("作成しますか？");'>
+                作成！
+            </button>
+        </form>
+    </div>
+{% endblock %}

@@ -51,6 +51,8 @@
                 {% csrf_token %}
                 <p id="answer_timer">15</p>
                 <h4>{{ one_questions.question }}</h4>
+                <input hidden type="text" name="question" value="{{ one_questions.question }}">
+                <input hidden type="text" name="username" value="{{ user.username }}">
                 <input hidden type="text" name="questions" value="{{ questions }}">
                 <input hidden type="text" name="question_id" value="{{ one_questions.id }}">
                 <input hidden type="text" name="collection_id" value="{{ collection_id }}">

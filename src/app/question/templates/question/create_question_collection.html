@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}問題集作成{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="bg-light p-3 p-sm-5 my-4 rounded">
+            <h1 class="display-4">問題集作成</h1>
+            <hr class="my-4">
+            <p>問題集を作成できます。</p>
+        </div>
+    </div>
+    <div class="container">
+        <form action="{% url 'question:create_question_collection' %}" method="POST">
+            {% csrf_token %}
+            <p>{{ form.collection }}</p>
+            <input hidden type="text" name="user" value="{{ user.username }}" maxlength="100" class="form-control"
+                   id="user" placeholder="ユーザー名" required="">
+            <p>{{ form.about }}</p>
+            <p>{{ form.attention }}</p>
+            <h5 class="images">画像(任意) <i class="far fa-images"></i></h5>
+            <div class="image-upload images">
+                <p>{{ form.image }}</p>
+            </div>
+            <button type="submit" class="btn btn-secondary" style="margin-bottom: 3rem"
+                    onclick='return confirm("作成しますか？");'>
+                作成！
+            </button>
+        </form>
+    </div>
+{% endblock %}
