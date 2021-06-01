@@ -6,6 +6,7 @@ from .models import QuestionCollection, Question
 from django.views import generic
 from typing import List
 import random
+import time
 import csv
 
 
@@ -65,17 +66,23 @@ def question(requests, collection_id: int) -> str:
     # 問題番号取得
     question_counts: int = Question.objects.filter(collection=collection_name).count()
     question_number: int = question_counts - len(questions)
+    start_time: time = time.time()
     params: dict = {
         "collection_id": collection_id,
         "questions": questions,
         "one_questions": one_questions,
-        "question_number": question_number
+        "question_number": question_number,
+        "start_time": start_time,
     }
     return render(requests, 'question/question.html', params)
 
 
 def answer(requests):
     if requests.method == "POST":
+        # 解答時間計算
+        start_time = float(requests.POST['start_time'].replace(",", '').replace('"', '').replace("'", ""))
+        end_time = time.time()
+        answer_time = end_time - start_time
         message: str = "answer"
         judge: str = "不正解"
         questions: str = requests.POST["questions"]
