@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}問題解答終了{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="bg-light p-3 p-sm-5 my-4 rounded">
+            <h1 class="display-4">問題解答終了</h1>
+            <hr class="my-4">
+            <p>{{ message }}</p>
+            <a href="{% url 'question:home' %}" class="btn"
+               style="background-color: #77c7e2; color: #303f42;" tabindex="-1" role="button">
+                一覧に戻る
+                <i class="far fa-list-alt"></i>
+            </a>
+        </div>
+    </div>
+    <div class="container">
+        <p>ありがとうございました🙇‍</p>
+    </div>
+{% endblock %}

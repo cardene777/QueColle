@@ -30,6 +30,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 INSTALLED_APPS = [
     'question.apps.QuestionConfig',
+    'accounts.apps.AccountsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -131,6 +132,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # set upload files directory and url path
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+LOGIN_URL = 'accounts:login'
+LOGIN_REDIRECT_URL = 'question:home'
+LOGOUT_REDIRECT_URL = 'question:home'
 
 DEBUG = True
 

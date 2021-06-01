@@ -1,0 +1,20 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}ログイン{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="bg-light p-3 p-sm-5 my-4 rounded">
+            <h1 class="display-4">ログイン</h1>
+            <hr class="my-4">
+            <p>ログインしてください！</p>
+        </div>
+    </div>
+    <div class="container">
+        <form action="" method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">ログイン</button>
+        </form>
+    </div>
+{% endblock %}

@@ -31,29 +31,32 @@
                                 Question
                             </a>
                         </li>
-{#                        {% if user.username == "Qadmin" %}#}
-{#                            <li class="nav-item active">#}
-{#                                <a class="nav-link" href="{% url 'question:question_title_create' %}"><strong>新規作成</strong></a>#}
-{#                            </li>#}
-{#                            <li class="nav-item active">#}
-{#                                <a class="nav-link" href="{% url 'question:export' %}">Export</a>#}
-{#                            </li>#}
-{#                            <li class="nav-item active">#}
-{#                                <a class="nav-link" href="{% url 'question:plot_list' %}">Plot</a>#}
-{#                            </li>#}
-{#                        {% endif %}#}
-{#                        {% if user.is_authenticated %}#}
-{#                            <li class="nav-item active">#}
-{#                                <a class="nav-link" href="{% url 'accounts:login' %}">{{ user.username }}</a>#}
-{#                            </li>#}
-{#                            <li class="nav-item active">#}
-{#                                <a class="nav-link" href="{% url 'accounts:logout' %}">LogOut</a>#}
-{#                            </li>#}
-{#                        {% else %}#}
-{#                            <li class="nav-item active">#}
-{#                                <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>#}
-{#                            </li>#}
-{#                        {% endif %}#}
+                        {% if user.username == "quecolle" %}
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{% url 'question:home' %}">Export</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{% url 'question:home' %}">Plot</a>
+                            </li>
+                        {% endif %}
+                        {% if user.is_authenticated %}
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{% url 'accounts:login' %}"
+                                    style="font-weight: bold">
+                                    {{ user.username }}
+                                </a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{% url 'accounts:logout' %}">LogOut</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{% url 'accounts:signup' %}">SignUp</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
+                            </li>
+                        {% endif %}
                     </ul>
                     <form class="d-flex" action="{% url 'question:home' %}" method="get">
                         <input name="q" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
