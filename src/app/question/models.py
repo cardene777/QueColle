@@ -11,6 +11,12 @@ class QuestionCollection(models.Model):
         max_length=250
     )
 
+    user = models.CharField(
+        verbose_name="問題集作成ユーザー",
+        max_length=100,
+        default="Who"
+    )
+
     about = models.TextField(
         verbose_name='問題集概要'
     )
@@ -103,3 +109,6 @@ class Data(models.Model):
     user_answer = models.TextField(
         verbose_name="ユーザー解答"
     )
+
+    def __str__(self):
+        return str(self.user)

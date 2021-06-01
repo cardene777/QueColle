@@ -1,9 +1,11 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from django.urls import reverse_lazy
 from django.utils.datastructures import MultiValueDictKeyError
 
-from .models import QuestionCollection, Question
+from .models import QuestionCollection, Question, Data
 from django.views import generic
+from .forms import QuestionCollectionForm, QuestionForm
 from typing import List
 import random
 import time
@@ -44,6 +46,12 @@ def question(requests, collection_id: int) -> str:
     :param collection_id: int
     :return: html file with one questions
     """
+    collection_name: str = QuestionCollection.objects.get(id=collection_id)
+    if Question.objects.filter(collection=collection_name).count() == 0:
+        params: dict = {
+            "message": "not question"
+        }
+        return render(requests, 'question/error.html', params)
     # 全て解答し終わった時の処理
     try:
         if requests.POST["questions"] == "[]":
@@ -92,6 +100,12 @@ def answer(requests):
         if str(correct_answer) == str(user_answer):
             judge: str = "正解"
 
+        # データ登録
+        collection_name = QuestionCollection.objects.get(id=requests.POST["collection_id"])
+        question_question = Question.objects.get(question=requests.POST["question"])
+        data = Data(collection=collection_name, question=question_question, user=requests.POST["username"],
+                    judge=judge, answer_time=int(answer_time), correct_answer=correct_answer, user_answer=user_answer)
+        data.save()
         params: dict = {
             "questions": questions,
             "message": message,
@@ -118,3 +132,26 @@ def answer(requests):
 #              data.correct,
 #              data.answer])
 #     return response
+
+
+class CreateQuestionCollection(generic.CreateView):
+    template_name = "question/create_question_collection.html"
+    model = QuestionCollection
+    form_class = QuestionCollectionForm
+    success_url = reverse_lazy("question:home")
+
+
+def create_question(requests, question_collection_id):
+    if requests.method == "POST":
+        question_data = QuestionForm(requests.POST, instance=Question())
+        question_data.save()
+        return render(requests, 'question/question_home.html')
+    form = QuestionForm()
+    collection_name: str = QuestionCollection.objects.get(id=question_collection_id)
+    print(collection_name)
+    params: dict = {
+        "form": form,
+        "collection_name": collection_name,
+        "collection_id": question_collection_id
+    }
+    return render(requests, 'question/create_question.html', params)
