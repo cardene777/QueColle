@@ -39,7 +39,7 @@ class QuestionAbout(generic.DetailView):
         return context
 
 
-def question(requests, collection_id: int) -> str:
+def question(requests, collection_id):
     """
     random choice question
     :param requests: requests
@@ -155,3 +155,63 @@ def create_question(requests, question_collection_id):
         "collection_id": question_collection_id
     }
     return render(requests, 'question/create_question.html', params)
+
+
+def aggregation(requests, username):
+    user_collections: list = list(QuestionCollection.objects.filter(user=username).values_list("collection", flat=True))
+    if requests.method == "POST":
+        user_collection = requests.POST["user_collection"]
+        collection_about = QuestionCollection.objects.filter(collection=user_collection)
+        collection_value: str = collection_about.values_list("collection", flat=True)[0]
+        about_value: str = collection_about.values_list("collection", flat=True)[0]
+        attention_value: str = collection_about.values_list("attention", flat=True)[0]
+        collection_data = Data.objects.filter(collection=list(collection_about.values_list("id", flat=True))[0])
+        if not collection_data:
+            params: dict = {
+                "message": "no",
+                "user_collections": user_collections,
+            }
+            return render(requests, 'question/aggregation.html', params)
+        params: dict = {
+            "message": "yes",
+            "collection_about": collection_about,
+            "collection_data": collection_data,
+            "collection_value": collection_value,
+            "about_value": about_value,
+            "attention_value": attention_value,
+            "user_collections": user_collections
+        }
+        return render(requests, 'question/aggregation.html', params)
+    params: dict = {
+        "user_collections": user_collections
+    }
+    return render(requests, 'question/aggregation.html', params)
+
+
+def plot(requests, username, collection):
+    user_collections: list = list(QuestionCollection.objects.filter(user=username).values_list("collection", flat=True))
+    collection_id = list(QuestionCollection.objects.filter(collection=collection).values_list("id", flat=True))[0]
+    datas = Data.objects.filter(collection=collection_id)
+    answer_times = "".join(list(map(str, list(datas.values_list("answer_time", flat=True)))))
+    users = " ".join(list(datas.values_list("user", flat=True)))
+    collection_about = QuestionCollection.objects.filter(collection=collection)
+    collection_value: str = collection_about.values_list("collection", flat=True)[0]
+    about_value: str = collection_about.values_list("collection", flat=True)[0]
+    attention_value: str = collection_about.values_list("attention", flat=True)[0]
+    collection_data = Data.objects.filter(collection=list(collection_about.values_list("id", flat=True))[0])
+    params: dict = {
+        "message": "yes",
+        "plot": "graph_on",
+        "user_collections": user_collections,
+        "datas": datas,
+        "answer_times": answer_times,
+        "users": users,
+        "collection_about": collection_about,
+        "collection_data": collection_data,
+        "collection_value": collection_value,
+        "about_value": about_value,
+        "attention_value": attention_value,
+    }
+    print(users)
+    print(answer_times)
+    return render(requests, 'question/aggregation.html', params)
