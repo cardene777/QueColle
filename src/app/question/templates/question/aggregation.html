@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}集計{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="bg-light p-3 p-sm-5 my-4 rounded">
+            <h1 class="display-4">問題集計</h1>
+            <hr class="my-4">
+            <p>集計ページ</p>
+            <form action="{% url 'question:aggregation' user.username %}" method="post">
+                {% csrf_token %}
+                <select class="form-select form-select-lg mb-3" name="user_collection" aria-label=".form-select-lg example">
+                    <option selected>集計する問題を選択してください。</option>
+                    {% for user_collection in user_collections %}
+                        <option value="{{ user_collection }}">{{ user_collection }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-secondary" style="margin-top: 1rem">
+                    選択
+                </button>
+            </form>
+        </div>
+    </div>
+    {% if message == "no" %}
+        <div class="container" style="margin-top: 2rem">
+            <h4>解答データがありません。</h4>
+        </div>
+    {% elif message == "yes" %}
+        <div class="container" style="margin-top: 2rem">
+            <div class="accordion" id="accordionExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            問題集
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                        <div class="accordion-body">
+                            <strong>{{ collection_value }}</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            概要
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                        <div class="accordion-body">
+                            <strong>{{ about_value }}</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingThree">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            注意事項
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse show" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                        <div class="accordion-body">
+                            <strong>{{ attention_value }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if plot == "graph_on" %}
+            <div class="container">
+                <canvas id="myChart"></canvas>
+            </div>
+            <div hidden id="users" title="{{ users }}">
+            </div>
+            <div hidden id="answer_times" title="{{ answer_times }}">
+            </div>
+
+            <script>
+                var ctx = document.getElementById('myChart').getContext('2d');
+                var users = document.getElementById( 'users' ).title;
+                var datas = Array.from(document.getElementById( 'answer_times' ).title);
+                var labels = users.split(" ")
+                var chart = new Chart(ctx, {
+                    // 作成したいチャートのタイプ
+                    type: 'line',
+
+                    // データセットのデータ
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: "平均解答時間",
+                            backgroundColor: 'rgb(255, 99, 132)',
+                            borderColor: 'rgb(255, 99, 132)',
+                            data: datas,
+                        }],
+                        borderWidth: 1
+                    },
+                    // ここに設定オプションを書きます
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero:true
+                                }
+                            }]
+                        }
+                    }
+                });
+            </script>
+            <div class="container">
+                <a href="{% url 'question:plot' user.username collection_value %}" class="btn"
+                   style="background-color: #77c7e2; color: #303f42; margin-top: 1rem" tabindex="-1" role="button"
+                   aria-disabled="true">
+                    グラフ表示
+                    <i class="fas fa-chart-bar"></i>
+                </a>
+            </div>
+        {% else %}
+            <div class="container">
+                <a href="{% url 'question:plot' user.username collection_value %}" class="btn"
+                   style="background-color: #77c7e2; color: #303f42; margin-top: 1rem" tabindex="-1" role="button"
+                   aria-disabled="true">
+                    グラフ表示
+                    <i class="fas fa-chart-bar"></i>
+                </a>
+            </div>
+        {% endif %}
+
+        <div class="container" style="margin-top: 3rem; margin-bottom: 3rem">
+            <table class="table table-success table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">ユーザー</th>
+                        <th scope="col">問題文</th>
+                        <th scope="col">正誤</th>
+                        <th scope="col">解答時間</th>
+                        <th scope="col">正解</th>
+                        <th scope="col">解答</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in collection_data %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>{{ data.user }}</td>
+                                <td>{{ data.question.question }}</td>
+                                <td>{{ data.judge }}</td>
+                                <td>{{ data.answer_time }}</td>
+                                <td>{{ data.correct_answer }}</td>
+                                <td>{{ data.user_answer }}</td>
+                            </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}

@@ -4,6 +4,7 @@ from django.urls import reverse_lazy
 from django.views import generic
 
 from . import forms
+from question.models import QuestionCollection
 
 
 class MyLoginView(LoginView):
@@ -23,3 +24,9 @@ class SignUpView(generic.CreateView):
 
 class ProfileView(generic.TemplateView):
     template_name = "accounts/profile.html"
+    model = QuestionCollection()
+    context_object_name: str = "question_collection"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context

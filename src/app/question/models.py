@@ -34,7 +34,7 @@ class QuestionCollection(models.Model):
     )
 
     def __str__(self):
-        return str(self.collection)
+        return f"{str(self.collection), str(self.about), str(self.attention),}"
 
 
 class Question(models.Model):
