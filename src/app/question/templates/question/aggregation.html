@@ -11,7 +11,7 @@
             <form action="{% url 'question:aggregation' user.username %}" method="post">
                 {% csrf_token %}
                 <select class="form-select form-select-lg mb-3" name="user_collection" aria-label=".form-select-lg example">
-                    <option selected>集計する問題を選択してください。</option>
+                    <option selected value="None">集計する問題を選択してください。</option>
                     {% for user_collection in user_collections %}
                         <option value="{{ user_collection }}">{{ user_collection }}</option>
                     {% endfor %}
@@ -26,7 +26,19 @@
         <div class="container" style="margin-top: 2rem">
             <h4>解答データがありません。</h4>
         </div>
+    {% elif message == "no data" %}
+        <div class="container" style="margin-top: 2rem">
+            <h4>ここは選択できません。</h4>
+        </div>
     {% elif message == "yes" %}
+        <div class="container">
+            <a href="{% url 'question:export' collection_value %}" class="btn"
+                   style="background-color: #77c7e2; color: #303f42; margin-top: 1rem" tabindex="-1" role="button"
+                   aria-disabled="true">
+                    export
+                    <i class="fas fa-chart-bar"></i>
+                </a>
+        </div>
         <div class="container" style="margin-top: 2rem">
             <div class="accordion" id="accordionExample">
                 <div class="accordion-item">
@@ -69,32 +81,39 @@
         </div>
 
         {% if plot == "graph_on" %}
-            <div class="container">
-                <canvas id="myChart"></canvas>
+            <div class="container" style="width: 80%">
+                <canvas id="AnswerTimeChart"></canvas>
             </div>
-            <div hidden id="collection_number_list" title="{{ collection_number_list }}">
+            <div class="container" style="width: 80%">
+                <canvas id="JudgeChart"></canvas>
             </div>
-            <div hidden id="answer_time" title="{{ answer_time }}">
-            </div>
+            <div hidden id="collection_number_list" title="{{ collection_number_list }}"></div>
+            <div hidden id="answer_time" title="{{ answer_time }}"></div>
+            <div hidden id="judges" title="{{ judges }}"></div>
 
             <script>
-                var ctx = document.getElementById('myChart').getContext('2d');
+                var ATC = document.getElementById('AnswerTimeChart').getContext('2d');
+                var JC = document.getElementById('JudgeChart').getContext('2d');
                 var labels = document.getElementById( 'collection_number_list' ).title.split(",");
-                var datas = Array.from(document.getElementById( 'answer_time' ).title.split(","));
-                console.log(datas)
-                var chart = new Chart(ctx, {
+                var answer_datas = Array.from(document.getElementById( 'answer_time' ).title.split(","));
+                var judge_datas = Array.from(document.getElementById( 'judges' ).title.split(","));
+                console.log(judge_datas)
+                var answer_time_chart = new Chart(ATC, {
                     // 作成したいチャートのタイプ
                     type: 'line',
 
                     // データセットのデータ
                     data: {
                         labels: labels,
-                        datasets: [{
-                            label: "平均解答時間",
-                            backgroundColor: 'rgb(255, 99, 132, 0)',
-                            borderColor: 'rgb(255, 99, 132)',
-                            data: datas,
-                        }],
+                        datasets: [
+                            {
+                                label: "平均解答時間",
+                                backgroundColor: 'rgb(255, 99, 132, 0)',
+                                borderColor: 'rgb(255, 99, 132)',
+                                data: answer_datas,
+                                borderWidth: 3
+                            },
+                        ],
                     },
                     // ここに設定オプションを書きます
                     options: {
@@ -106,6 +125,39 @@
                                     stepSize: 1,
                                     callback: function(value, index, values){
                                       return  value +  '秒'
+                                    }
+                                }
+                            }]
+                        }
+                    }
+                });
+                var judge_chart = new Chart(JC, {
+                    // 作成したいチャートのタイプ
+                    type: 'line',
+
+                    // データセットのデータ
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: "正誤率",
+                                backgroundColor: 'rgb(0, 0, 0, 0)',
+                                borderColor: 'rgb(0,0,255,1)',
+                                data: judge_datas,
+                                borderWidth: 3
+                            }
+                        ],
+                    },
+                    // ここに設定オプションを書きます
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    suggestedMax: 100,
+                                    suggestedMin: 0,
+                                    stepSize: 10,
+                                    callback: function(value, index, values){
+                                      return  value +  '点'
                                     }
                                 }
                             }]
@@ -133,7 +185,8 @@
             </div>
         {% endif %}
 
-        <div class="container" style="margin-top: 3rem; margin-bottom: 3rem">
+        <div class="container"
+             style="margin-top: 3rem; margin-bottom: 3rem; height:1000px; width:100%; overflow-y:scroll;">
             <table class="table table-success table-striped">
                 <thead>
                     <tr>

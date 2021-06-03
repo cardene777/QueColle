@@ -35,11 +35,6 @@
                                 Question
                             </a>
                         </li>
-                        {% if user.username == "quecolle" %}
-                            <li class="nav-item active">
-                                <a class="nav-link" href="{% url 'question:home' %}">Export</a>
-                            </li>
-                        {% endif %}
                         {% if user.is_authenticated %}
                             <li class="nav-item active">
                                 <a class="nav-link" href="{% url 'accounts:profile' %}"
