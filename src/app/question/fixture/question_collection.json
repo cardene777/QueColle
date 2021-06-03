@@ -1,0 +1,24 @@
+[
+  {
+    "model": "question.questioncollection",
+    "pk": 1,
+    "fields": {
+      "collection": "テスト",
+      "user": "quecolle",
+      "about": "テスト問題です。",
+      "attention": "テスト問題なので、練習用に用いてください。",
+      "numbers": 4
+    }
+  },
+  {
+    "model": "question.questioncollection",
+    "pk": 2,
+    "fields": {
+      "collection": "実験",
+      "user": "quecolle",
+      "about": "本番実験用の問題群です。",
+      "attention": "注意事項をしっかり読んでください。",
+      "numbers": 4
+    }
+  }
+]

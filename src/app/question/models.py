@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 
 class QuestionCollection(models.Model):
@@ -33,8 +34,17 @@ class QuestionCollection(models.Model):
         blank=True
     )
 
+    numbers = models.IntegerField(
+        verbose_name="問題グループ数",
+        default=1,
+        blank=True
+    )
+
     def __str__(self):
         return f"{str(self.collection), str(self.about), str(self.attention),}"
+
+    def get_absolute_url(self):
+        return reverse('question:about', kwargs={'pk': self.pk})
 
 
 class Question(models.Model):
@@ -57,11 +67,15 @@ class Question(models.Model):
     )
 
     explanation = models.TextField(
-        verbose_name='解説'
+        verbose_name='解説',
+        blank=True
     )
 
     def __str__(self):
         return str(self.question)
+
+    def get_absolute_url(self):
+        return reverse('question:about', kwargs={'pk': self.pk})
 
 
 class Data(models.Model):
@@ -79,6 +93,10 @@ class Data(models.Model):
         Question,
         verbose_name='所属問題',
         on_delete=models.CASCADE
+    )
+
+    number = models.IntegerField(
+        verbose_name="グループ番号"
     )
 
     user = models.CharField(
@@ -112,3 +130,26 @@ class Data(models.Model):
 
     def __str__(self):
         return str(self.user)
+
+
+class QuestionTime(models.Model):
+    class Meta:
+        verbose_name = '問題群設定'
+        verbose_name_plural = '問題群設定'
+
+    collection = models.ForeignKey(
+        QuestionCollection,
+        verbose_name="問題集",
+        on_delete=models.CASCADE
+    )
+
+    number = models.IntegerField(
+        verbose_name="問題群"
+    )
+
+    time = models.DateTimeField(
+        verbose_name="解答時間設定"
+    )
+
+    def __str__(self):
+        return str(self.time)

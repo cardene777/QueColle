@@ -12,7 +12,7 @@
         </div>
     </div>
     <div class="container">
-        <form action="{% url 'question:create_question' 0 %}" method="POST">
+        <form action="{% url 'question:create_question' collection_id %}" method="POST">
             {% csrf_token %}
             <select hidden name="collection" class="form-control" id="collection" placeholder="問題集名" required="">
                 <option value="{{ collection_id }}" selected>{{ collection_name }}</option>

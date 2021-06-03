@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.utils.datastructures import MultiValueDictKeyError
 
 from .models import QuestionCollection, Question, Data
@@ -37,6 +37,38 @@ class QuestionAbout(generic.DetailView):
         collection_name = QuestionCollection.objects.get(id=self.kwargs['pk'])
         context["length"] = Question.objects.filter(collection=collection_name).count()
         return context
+
+
+class QuestionCollectionUpdate(generic.UpdateView):
+    template_name = "question/question_collection_update.html"
+    model = QuestionCollection
+    form_class = QuestionCollectionForm
+
+    def get_context_data(self, **kwargs):
+        context = super(QuestionCollectionUpdate, self).get_context_data()
+        context["collection_id"] = QuestionCollection.objects.get(id=self.kwargs["pk"]).id
+        return context
+
+
+class QuestionUpdate(generic.UpdateView):
+    template_name = "question/question_update.html"
+    model = Question
+    form_class = QuestionForm
+
+
+class QuestionDelete(generic.DeleteView):
+    template_name = "question/question_delete.html"
+    model = Question
+    success_url = reverse_lazy('question:home')
+
+
+def question_list(request, collection_id):
+    questions = Question.objects.filter(collection=int(collection_id))
+    params: dict = {
+        "questions": questions,
+        "collection_id": collection_id
+    }
+    return render(request, 'question/question_list.html', params)
 
 
 def question(requests, collection_id):
@@ -145,10 +177,13 @@ def create_question(requests, question_collection_id):
     if requests.method == "POST":
         question_data = QuestionForm(requests.POST, instance=Question())
         question_data.save()
-        return render(requests, 'question/question_home.html')
+        question_collects = QuestionCollection.objects.all()
+        params: dict = {
+            "question_collects": question_collects
+        }
+        return render(requests, 'question/question_home.html', params)
     form = QuestionForm()
     collection_name: str = QuestionCollection.objects.get(id=question_collection_id)
-    print(collection_name)
     params: dict = {
         "form": form,
         "collection_name": collection_name,
@@ -189,11 +224,22 @@ def aggregation(requests, username):
 
 
 def plot(requests, username, collection):
-    user_collections: list = list(QuestionCollection.objects.filter(user=username).values_list("collection", flat=True))
-    collection_id = list(QuestionCollection.objects.filter(collection=collection).values_list("id", flat=True))[0]
+    collections = QuestionCollection.objects.get(collection=collection)
+    collection_id:int = collections.id
     datas = Data.objects.filter(collection=collection_id)
-    answer_times = "".join(list(map(str, list(datas.values_list("answer_time", flat=True)))))
-    users = " ".join(list(datas.values_list("user", flat=True)))
+    collection_number: int = collections.numbers
+    collection_numbers: list = []
+    collection_answer_time: list = []
+    for number in range(int(collection_number)):
+        collection_numbers.append(datas.filter(number=number+1))
+        collection_answer_time.append(datas.filter(number=number+1).values_list("answer_time", flat=True))
+    collection_number_list: list = ",".join(list(map(str, range(1, int(collection_number)+1))))
+    answer_time: list = []
+    for time in collection_answer_time:
+        answer_time.append(str(sum(list(time))/10))
+    answer_time = ",".join(answer_time)
+
+
     collection_about = QuestionCollection.objects.filter(collection=collection)
     collection_value: str = collection_about.values_list("collection", flat=True)[0]
     about_value: str = collection_about.values_list("collection", flat=True)[0]
@@ -202,16 +248,12 @@ def plot(requests, username, collection):
     params: dict = {
         "message": "yes",
         "plot": "graph_on",
-        "user_collections": user_collections,
-        "datas": datas,
-        "answer_times": answer_times,
-        "users": users,
+        "collection_number_list": collection_number_list,
+        "answer_time": answer_time,
         "collection_about": collection_about,
         "collection_data": collection_data,
         "collection_value": collection_value,
         "about_value": about_value,
         "attention_value": attention_value,
     }
-    print(users)
-    print(answer_times)
     return render(requests, 'question/aggregation.html', params)
