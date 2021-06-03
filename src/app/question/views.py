@@ -148,22 +148,24 @@ def answer(requests):
         return render(requests, 'question/question.html', params)
 
 
-# def data_export(request):
-#     """
-#     data export csv file
-#     :param request:
-#     :return: csv file
-#     """
-#     response = HttpResponse(content_type='text/csv')
-#     response['Content-Disposition'] = 'attachment; filename="data.csv"'
-#     # HttpResponseオブジェクトはファイルっぽいオブジェクトなので、csv.writerにそのまま渡せます。
-#     writer = csv.writer(response)
-#     for data in Data.objects.all():
-#         writer.writerow(
-#             [data.pk, data.period, data.experiment_number, data.user, data.question_number, data.judge, data.time,
-#              data.correct,
-#              data.answer])
-#     return response
+def export(request, collection_value):
+    """
+    data export csv file
+    :param collection_value:
+    :param request:
+    :return: csv file
+    """
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="data.csv"'
+    # HttpResponseオブジェクトはファイルっぽいオブジェクトなので、csv.writerにそのまま渡せます。
+    writer = csv.writer(response)
+    collection_id = QuestionCollection.objects.get(collection=collection_value).id
+    writer.writerow(["pk", "問題集", "問題文", "問題群番号", "ユーザー", "正誤", "解答時間", "正解", "ユーザー解答"])
+    for data in Data.objects.filter(collection=collection_id):
+        writer.writerow(
+            [data.pk, collection_value, data.question, data.number, data.user, data.judge, data.answer_time,
+             data.correct_answer, data.user_answer])
+    return response
 
 
 class CreateQuestionCollection(generic.CreateView):
@@ -196,6 +198,12 @@ def aggregation(requests, username):
     user_collections: list = list(QuestionCollection.objects.filter(user=username).values_list("collection", flat=True))
     if requests.method == "POST":
         user_collection = requests.POST["user_collection"]
+        if user_collection == "None":
+            params: dict = {
+                "message": "no data",
+                "user_collections": user_collections,
+            }
+            return render(requests, 'question/aggregation.html', params)
         collection_about = QuestionCollection.objects.filter(collection=user_collection)
         collection_value: str = collection_about.values_list("collection", flat=True)[0]
         about_value: str = collection_about.values_list("collection", flat=True)[0]
@@ -224,20 +232,39 @@ def aggregation(requests, username):
 
 
 def plot(requests, username, collection):
+    user_collections: list = list(QuestionCollection.objects.filter(user=username).values_list("collection", flat=True))
     collections = QuestionCollection.objects.get(collection=collection)
     collection_id:int = collections.id
     datas = Data.objects.filter(collection=collection_id)
     collection_number: int = collections.numbers
     collection_numbers: list = []
     collection_answer_time: list = []
+    collection_judge: list = []
     for number in range(int(collection_number)):
         collection_numbers.append(datas.filter(number=number+1))
         collection_answer_time.append(datas.filter(number=number+1).values_list("answer_time", flat=True))
+        collection_judge.append(datas.filter(number=number+1).values_list("judge", flat=True))
     collection_number_list: list = ",".join(list(map(str, range(1, int(collection_number)+1))))
+    print(collection_judge)
     answer_time: list = []
+    judges: list = []
     for time in collection_answer_time:
         answer_time.append(str(sum(list(time))/10))
+
+    def change_judge(j):
+        bool_dict: dict = {
+            "正解": 1,
+            "不正解": 0
+        }
+        change_j: int = bool_dict[j]
+        return change_j
+    for judge in collection_judge:
+        judge = list(map(change_judge, judge))
+        judges.append(str((sum(judge)/len(judge))*100))
     answer_time = ",".join(answer_time)
+    judges = ",".join(judges)
+    print(answer_time)
+    print(judges)
 
 
     collection_about = QuestionCollection.objects.filter(collection=collection)
@@ -250,10 +277,12 @@ def plot(requests, username, collection):
         "plot": "graph_on",
         "collection_number_list": collection_number_list,
         "answer_time": answer_time,
+        "judges": judges,
         "collection_about": collection_about,
         "collection_data": collection_data,
         "collection_value": collection_value,
         "about_value": about_value,
         "attention_value": attention_value,
+        "user_collections": user_collections,
     }
     return render(requests, 'question/aggregation.html', params)
