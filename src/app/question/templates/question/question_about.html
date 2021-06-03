@@ -96,6 +96,16 @@
                 一覧に戻る
                 <i class="far fa-list-alt"></i>
             </a>
+            <a href="{% url 'question:question_collection_update' question_collection.id %}" class="btn"
+               style="background-color: #77c7e2; color: #303f42;" tabindex="-1" role="button">
+                編集
+                <i class="far fa-list-alt"></i>
+            </a>
+            <a href="{% url 'question:question_list' question_collection.id %}" class="btn"
+               style="background-color: #77c7e2; color: #303f42;" tabindex="-1" role="button">
+                問題一覧
+                <i class="far fa-list-alt"></i>
+            </a>
         </div>
     </div>
 

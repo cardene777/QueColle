@@ -1,11 +1,13 @@
 from django import forms
+from django.urls import reverse
+
 from .models import QuestionCollection, Question
 
 
 class QuestionCollectionForm(forms.ModelForm):
     class Meta:
         model = QuestionCollection
-        fields = ('collection', 'user', 'about', 'image', 'attention')
+        fields = ('collection', 'user', 'about', 'image', 'attention', 'numbers')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -31,6 +33,11 @@ class QuestionCollectionForm(forms.ModelForm):
         self.fields['attention'].widget.attrs['id'] = 'attention'
         self.fields['attention'].widget.attrs['name'] = 'attention'
         self.fields['attention'].widget.attrs['placeholder'] = '注意事項'
+
+        self.fields['numbers'].widget.attrs['class'] = 'form-control'
+        self.fields['numbers'].widget.attrs['id'] = 'numbers'
+        self.fields['numbers'].widget.attrs['name'] = 'numbers'
+        self.fields['numbers'].widget.attrs['placeholder'] = '問題グループ数'
 
 
 class QuestionForm(forms.ModelForm):

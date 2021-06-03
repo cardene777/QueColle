@@ -72,16 +72,16 @@
             <div class="container">
                 <canvas id="myChart"></canvas>
             </div>
-            <div hidden id="users" title="{{ users }}">
+            <div hidden id="collection_number_list" title="{{ collection_number_list }}">
             </div>
-            <div hidden id="answer_times" title="{{ answer_times }}">
+            <div hidden id="answer_time" title="{{ answer_time }}">
             </div>
 
             <script>
                 var ctx = document.getElementById('myChart').getContext('2d');
-                var users = document.getElementById( 'users' ).title;
-                var datas = Array.from(document.getElementById( 'answer_times' ).title);
-                var labels = users.split(" ")
+                var labels = document.getElementById( 'collection_number_list' ).title.split(",");
+                var datas = Array.from(document.getElementById( 'answer_time' ).title.split(","));
+                console.log(datas)
                 var chart = new Chart(ctx, {
                     // 作成したいチャートのタイプ
                     type: 'line',
@@ -91,24 +91,29 @@
                         labels: labels,
                         datasets: [{
                             label: "平均解答時間",
-                            backgroundColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgb(255, 99, 132, 0)',
                             borderColor: 'rgb(255, 99, 132)',
                             data: datas,
                         }],
-                        borderWidth: 1
                     },
                     // ここに設定オプションを書きます
                     options: {
                         scales: {
                             yAxes: [{
                                 ticks: {
-                                    beginAtZero:true
+                                    suggestedMax: 15,
+                                    suggestedMin: 0,
+                                    stepSize: 1,
+                                    callback: function(value, index, values){
+                                      return  value +  '秒'
+                                    }
                                 }
                             }]
                         }
                     }
                 });
             </script>
+
             <div class="container">
                 <a href="{% url 'question:plot' user.username collection_value %}" class="btn"
                    style="background-color: #77c7e2; color: #303f42; margin-top: 1rem" tabindex="-1" role="button"

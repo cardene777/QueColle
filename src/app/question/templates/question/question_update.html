@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}問題編集{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="bg-light p-3 p-sm-5 my-4 rounded">
+            <h1 class="display-4">問題編集</h1>
+            <hr class="my-4">
+            <p>問題を編集しましょう。</p>
+        </div>
+    </div>
+    <div class="container">
+        <form method="POST">
+            {% csrf_token %}
+            <div hidden>{{ form.collection }}</div>
+            {{ form.question }}
+            <br>
+            <div hidden>{{ form.number }}</div>
+            <hr>
+            <br>
+            {{ form.correct }}
+            <br>
+            <hr>
+            {{ form.explanation }}
+            <br>
+            <input type="submit" class="btn btn-secondary" value="保存" style="margin-bottom: 3rem">
+        </form>
+    </div>
+{% endblock %}
