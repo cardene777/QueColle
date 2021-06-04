@@ -41,7 +41,7 @@ class QuestionCollection(models.Model):
     )
 
     def __str__(self):
-        return f"{str(self.collection), str(self.about), str(self.attention),}"
+        return str(self.collection)
 
     def get_absolute_url(self):
         return reverse('question:about', kwargs={'pk': self.pk})

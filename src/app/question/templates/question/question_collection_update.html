@@ -12,12 +12,12 @@
             <a href="{% url 'question:about' collection_id %}" class="btn"
                style="background-color: #77c7e2; color: #303f42;" tabindex="-1" role="button">
                 戻る
-                <i class="far fa-list-alt"></i>
+                <i class="fas fa-undo"></i>
             </a>
         </div>
     </div>
     <div class="container">
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.collection }}
             <br>
