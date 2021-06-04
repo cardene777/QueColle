@@ -1,34 +1,168 @@
 {% extends 'base.html' %}
 
+{% block head %}
+    <style>
+        .icon {
+            display: flex;
+            justify-content: center;
+        }
+        .btn-real-dent {
+          /*周りの凹み*/
+          display: inline-block;
+          position: relative;
+          text-decoration: none;
+          color: rgba(3, 169, 244, 0.54);
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          text-align: center;
+          background: #f7f7f7;
+          box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.08);
+        }
+        .btn-real-dent i {
+          /*ボタン自体*/
+          position: absolute;
+          content: '';
+          width: 80px;
+          height: 80px;
+          line-height: 80px;
+          left: 10px;
+          top: 9px;
+          border-radius: 50%;
+          font-size: 40px;
+          background-image: linear-gradient(#e8e8e8 0%, #d6d6d6 100%);
+          text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.66);
+          box-shadow: inset 0 2px 0 rgba(255,255,255,0.5), 0 2px 2px rgba(0, 0, 0, 0.19);
+          border-bottom: solid 2px #b5b5b5;
+        }
+
+        .btn-real-dent .fas:active {
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 2px 2px rgba(0, 0, 0, 0.19);
+          border-bottom: solid 2px #d8d8d8;
+        }
+
+        .balloon3-right {
+          position: relative;
+          display: block;
+          margin-right: 1rem;
+          padding: 0 5px;
+          width: 110px;
+          height: 110px;
+          line-height: 110px;
+          text-align: center;
+          color: #FFF;
+          font-size: 20px;
+          font-weight: bold;
+          background: #ff8e9d;
+          border-radius: 50%;
+          box-sizing: border-box;
+        }
+
+        .balloon3-right:before {
+          content: "";
+          position: absolute;
+          top: 50%;
+          right: -25px;
+          margin-top: -15px;
+          border: 15px solid transparent;
+          border-left: 15px solid #ff8e9d;
+          z-index: 0;
+        }
+        .collections {
+            column-count: 3;
+        }
+        .hover {
+            position: relative;
+            width: 100%;
+            height:100%;
+            overflow: hidden;
+            margin-left: 0.5rem;
+            margin-right: 0.5rem;
+            -webkit-column-break-inside: avoid;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            margin-bottom: 1rem;
+        }
+        .hover-img img {
+            width: 100%;
+            height: 50%;
+        }
+        .hover .hover-text {
+            position:    absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            color: #fff;
+            background-color:    rgba(128,128,128,0.65 );
+            /*透明にして表示させない*/
+            opacity: 0;
+            /*ホバーの動き方*/
+            transition: .3s ease-in-out;
+        }
+        /*ホバーエフェクト*/
+        .hover:hover .hover-text {
+            /*不透明にして表示*/
+            opacity: 1;
+            /*padding-topで上からスライド*/
+            padding-top: 10px;
+        }
+        .collection-name {
+            margin-top: 2rem;
+            margin-left: 2rem;
+            font-weight: bold;
+            color: antiquewhite
+        }
+        .collection-about {
+            margin-top: 2rem;
+            margin-left: 2rem;
+            font-weight: bold;
+            color: whitesmoke;
+        }
+        .collection-link {
+            opacity: 0;
+        }
+    </style>
+{% endblock %}
+
 {% block title %}問題集一覧{% endblock %}
 
 {% block content %}
     <div class="container">
         <div class="bg-light p-3 p-sm-5 my-4 rounded">
+            <div class="icon">
+                <div class="balloon3-right">
+                    問題集作成
+                </div>
+                <a href="{% url 'question:create_question_collection' %}" class="btn-real-dent">
+                    <i class="fas fa-plus-circle"></i>
+                </a>
+            </div>
             <h1 class="display-4">問題集一覧</h1>
             <hr class="my-4">
             <p>問題を解きましょう！</p>
         </div>
     </div>
-    <div class="container">
-        <div class="container">
-            <div class="row">
-                {% for question_collect in question_collects %}
-                    <div class="card col-4" style="width: 18rem; margin: 2rem 1rem;">
-                        <img src="{{ question_collect.image.url }}" class="card-img-top" alt="...">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ question_collect.collection }}</h5>
-                            <p class="card-text">{{ question_collect.about }}</p>
-                            <a href="{% url 'question:about' question_collect.pk %}" class="btn stretched-link"
-                               style="background-color: #77c7e2; color: #303f42;" tabindex="-1" role="button"
-                               aria-disabled="true">
-                                Go Question
-                                <i class="fas fa-question-circle"></i>
-                            </a>
-                        </div>
+    <div class="container collections grid">
+{#        <div class="row" data-masonry='{"percentPosition": true }'>#}
+            {% for question_collect in question_collects %}
+                <div class="hover item">
+                    <div class="hover-img">
+                        <img src="{{ question_collect.image.url }}" class="card-img" alt="問題群">
                     </div>
-                {% endfor %}
-            </div>
-        </div>
+                    <div class="hover-text">
+                        <h2 class="collection-name">
+                            {{ question_collect.collection }}
+                        </h2>
+                        <h5 class="collection-about">{{ question_collect.about }}</h5>
+                        <a href="{% url 'question:about' question_collect.pk %}" class="collection-link btn stretched-link"
+                            tabindex="-1" role="button" aria-disabled="true">
+                            Go Question
+                            <i class="fas fa-question-circle"></i>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+{#        </div>#}
     </div>
 {% endblock %}

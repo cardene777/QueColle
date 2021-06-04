@@ -55,11 +55,23 @@ class QuestionUpdate(generic.UpdateView):
     model = Question
     form_class = QuestionForm
 
+    def get_context_data(self, **kwargs):
+        context = super(QuestionUpdate, self).get_context_data()
+        collection_name: str = Question.objects.get(id=self.kwargs["pk"]).collection
+        context["collection_id"] = QuestionCollection.objects.get(collection=collection_name).id
+        return context
+
 
 class QuestionDelete(generic.DeleteView):
     template_name = "question/question_delete.html"
     model = Question
     success_url = reverse_lazy('question:home')
+
+    def get_context_data(self, **kwargs):
+        context = super(QuestionDelete, self).get_context_data()
+        collection_name: str = Question.objects.get(id=self.kwargs["pk"]).collection
+        context["collection_id"] = QuestionCollection.objects.get(collection=collection_name).id
+        return context
 
 
 def question_list(request, collection_id):
@@ -179,11 +191,14 @@ def create_question(requests, question_collection_id):
     if requests.method == "POST":
         question_data = QuestionForm(requests.POST, instance=Question())
         question_data.save()
-        question_collects = QuestionCollection.objects.all()
+        question_collects = QuestionCollection.objects.filter(id=question_collection_id)[0]
+        length: int = Question.objects.filter(collection=question_collection_id).count()
+        print(question_collects.id)
         params: dict = {
-            "question_collects": question_collects
+            "question_collection": question_collects,
+            "length": length
         }
-        return render(requests, 'question/question_home.html', params)
+        return render(requests, 'question/question_about.html', params)
     form = QuestionForm()
     collection_name: str = QuestionCollection.objects.get(id=question_collection_id)
     params: dict = {
