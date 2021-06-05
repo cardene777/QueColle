@@ -3,9 +3,9 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils.datastructures import MultiValueDictKeyError
 
-from .models import QuestionCollection, Question, Data
+from .models import QuestionCollection, Question, Data, QuestionSchedule
 from django.views import generic
-from .forms import QuestionCollectionForm, QuestionForm
+from .forms import QuestionCollectionForm, QuestionForm, QuestionScheduleForm
 from typing import List
 import random
 import time
@@ -36,6 +36,22 @@ class QuestionAbout(generic.DetailView):
         context = super().get_context_data(**kwargs)
         collection_name = QuestionCollection.objects.get(id=self.kwargs['pk'])
         context["length"] = Question.objects.filter(collection=collection_name).count()
+        context["numbers"] = range(1, int(QuestionCollection.objects.get(collection=collection_name).numbers)+1)
+        context["number_data"]: list = []
+        for number in context["numbers"]:
+            data = QuestionSchedule.objects.filter(collection=collection_name).filter(number=number)
+            if data:
+                # context["number_data"].append(data[0])
+                print(data[0].start_date)
+                start_date = data[0].start_date
+                start_time = data[0].start_time
+                end_date = data[0].end_date
+                end_time = data[0].end_time
+                datas: list = [f"{start_date}-{start_time}", f"~{end_date}-{end_time}"]
+                context["number_data"].append(datas)
+                print(context["number_data"])
+                continue
+            context["number_data"].append(data)
         return context
 
 
@@ -193,7 +209,6 @@ def create_question(requests, question_collection_id):
         question_data.save()
         question_collects = QuestionCollection.objects.filter(id=question_collection_id)[0]
         length: int = Question.objects.filter(collection=question_collection_id).count()
-        print(question_collects.id)
         params: dict = {
             "question_collection": question_collects,
             "length": length
@@ -246,7 +261,7 @@ def aggregation(requests, username):
     return render(requests, 'question/aggregation.html', params)
 
 
-def plot(requests, username, collection):
+def plot(request, username, collection):
     user_collections: list = list(QuestionCollection.objects.filter(user=username).values_list("collection", flat=True))
     collections = QuestionCollection.objects.get(collection=collection)
     collection_id:int = collections.id
@@ -260,7 +275,6 @@ def plot(requests, username, collection):
         collection_answer_time.append(datas.filter(number=number+1).values_list("answer_time", flat=True))
         collection_judge.append(datas.filter(number=number+1).values_list("judge", flat=True))
     collection_number_list: list = ",".join(list(map(str, range(1, int(collection_number)+1))))
-    print(collection_judge)
     answer_time: list = []
     judges: list = []
     for time in collection_answer_time:
@@ -278,8 +292,6 @@ def plot(requests, username, collection):
         judges.append(str((sum(judge)/len(judge))*100))
     answer_time = ",".join(answer_time)
     judges = ",".join(judges)
-    print(answer_time)
-    print(judges)
 
 
     collection_about = QuestionCollection.objects.filter(collection=collection)
@@ -300,4 +312,36 @@ def plot(requests, username, collection):
         "attention_value": attention_value,
         "user_collections": user_collections,
     }
-    return render(requests, 'question/aggregation.html', params)
+    return render(request, 'question/aggregation.html', params)
+
+
+def schedule(request):
+    if request.method == "POST":
+        if request.POST["message"] == "create_schedule":
+            collection_id: int = request.POST["collection_id"]
+            number: int = request.POST["number"]
+            forms = QuestionScheduleForm()
+            params: dict = {
+                "collection_id": collection_id,
+                "number": number,
+                "forms": forms
+            }
+        elif request.POST["message"] == "set_schedule":
+            collection_id: int = request.POST["collection_id"]
+            try:
+                model = QuestionSchedule.objects.filter(
+                collection=collection_id).filter(number=request.POST["number"])[0]
+                data = QuestionScheduleForm(request.POST, instance=model)
+            except:
+                data = QuestionScheduleForm(request.POST, instance=QuestionSchedule())
+            data.save()
+            question_collects = QuestionCollection.objects.filter(id=collection_id)[0]
+            length: int = Question.objects.filter(collection=collection_id).count()
+            numbers: int = range(1, int(QuestionCollection.objects.get(id=collection_id).numbers) + 1)
+            params: dict = {
+                "question_collection": question_collects,
+                "length": length,
+                "numbers": numbers
+            }
+            return render(request, 'question/question_about.html', params)
+        return render(request, 'question/create_schedule.html', params)

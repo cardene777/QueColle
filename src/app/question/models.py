@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 
 
 class QuestionCollection(models.Model):
@@ -51,6 +52,12 @@ class Question(models.Model):
     class Meta:
         verbose_name = '問題'
         verbose_name_plural = '問題'
+
+    """views.pym idea_id
+    dream_id = Idea.objects.get(id=idea_id).dream
+    dream = Dream.objects.get(id=dream_id).name
+    
+    """
 
     collection = models.ForeignKey(
         QuestionCollection,
@@ -132,7 +139,7 @@ class Data(models.Model):
         return str(self.user)
 
 
-class QuestionTime(models.Model):
+class QuestionSchedule(models.Model):
     class Meta:
         verbose_name = '問題群設定'
         verbose_name_plural = '問題群設定'
@@ -147,9 +154,29 @@ class QuestionTime(models.Model):
         verbose_name="問題群"
     )
 
-    time = models.DateTimeField(
-        verbose_name="解答時間設定"
+    start_date = models.DateField(
+        verbose_name="解答開始日",
+        blank=False,
+        default=timezone.datetime.today()
+    )
+
+    start_time = models.TimeField(
+        verbose_name="解答開始時間",
+        blank=False,
+        default=timezone.datetime.now()
+    )
+
+    end_date = models.DateField(
+        verbose_name="解答終了日",
+        blank=False,
+        default=timezone.datetime.today() + timezone.timedelta(days=30)
+    )
+
+    end_time = models.TimeField(
+        verbose_name="解答終了時間",
+        blank=False,
+        default=timezone.datetime.now() + timezone.timedelta(hours=2)
     )
 
     def __str__(self):
-        return str(self.time)
+        return str(self.start_date)
