@@ -18,5 +18,6 @@ urlpatterns = [
     path('aggregation/<str:username>/', views.aggregation, name='aggregation'),
     path('plot/<str:username>/<str:collection>/', views.plot, name='plot'),
     path('export/<str:collection_value>/', views.export, name='export'),
+    path('schedule/', views.schedule, name='schedule'),
 ]
 

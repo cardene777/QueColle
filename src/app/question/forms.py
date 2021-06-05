@@ -1,7 +1,7 @@
 from django import forms
-from django.urls import reverse
+from bootstrap_datepicker_plus import DatePickerInput, TimePickerInput
 
-from .models import QuestionCollection, Question
+from .models import QuestionCollection, Question, QuestionSchedule
 
 
 class QuestionCollectionForm(forms.ModelForm):
@@ -66,3 +66,50 @@ class QuestionForm(forms.ModelForm):
         self.fields['explanation'].widget.attrs['id'] = 'explanation'
         self.fields['explanation'].widget.attrs['name'] = 'explanation'
         self.fields['explanation'].widget.attrs['placeholder'] = '解説'
+
+
+class QuestionScheduleForm(forms.ModelForm):
+    class Meta:
+        model = QuestionSchedule
+        fields = ('collection', 'number', 'start_date', 'start_time', 'end_date', 'end_time')
+        widgets = {
+            'start_date': DatePickerInput(
+                format='%Y-%m-%d',
+                options={
+                    'locale': 'ja',
+                    'dayViewHeaderFormat': 'YYYY年 MMMM',
+                }
+            ).start_of("期間"),
+            'start_time': TimePickerInput(
+                format='%H:%M:%S',
+                options={
+                    'locale': 'ja',
+                }
+            ),
+            'end_date': DatePickerInput(
+                format='%Y-%m-%d',
+                options={
+                    'locale': 'ja',
+                    'dayViewHeaderFormat': 'YYYY年 MMMM',
+                }
+            ).end_of("期間"),
+            'end_time': TimePickerInput(
+                format='%H:%M:%S',
+                options={
+                    'locale': 'ja',
+                }
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['collection'].widget.attrs['class'] = 'form-control'
+        self.fields['collection'].widget.attrs['id'] = 'collection'
+        self.fields['collection'].widget.attrs['name'] = 'collection'
+        self.fields['collection'].widget.attrs['placeholder'] = '問題集名'
+
+        self.fields['number'].widget.attrs['class'] = 'form-control'
+        self.fields['number'].widget.attrs['id'] = 'number'
+        self.fields['number'].widget.attrs['name'] = 'number'
+        self.fields['number'].widget.attrs['placeholder'] = '問題集番号'
+

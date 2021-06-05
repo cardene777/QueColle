@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <link href="/static/bootstrap_datepicker_plus/css/datepicker-widget.css" type="text/css" media="all" rel="stylesheet">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="/static/bootstrap_datepicker_plus/js/datepicker-widget.js"></script>
+{% endblock %}
+
+
+{% block title %}問題群作成{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="bg-light p-3 p-sm-5 my-4 rounded">
+            <h1 class="display-4">問題群作成</h1>
+            <hr class="my-4">
+            <p>開始日でデフォルトの終了日以降の日にちを選択するときは、終了日から先に設定してください。</p>
+            <a href="{% url 'question:about' collection_id %}" class="btn"
+               style="background-color: #77c7e2; color: #303f42;" tabindex="-1" role="button">
+                戻る
+                <i class="fas fa-undo"></i>
+            </a>
+        </div>
+    </div>
+    <div class="container">
+        <form action="{% url 'question:schedule' %}" method="POST">
+            {% csrf_token %}
+            <input hidden type="text" name="message" value="set_schedule">
+            <input hidden type="text" name="collection_id" value="{{ collection_id }}">
+            <select hidden name="collection" class="form-control" id="collection" placeholder="問題集名" required="">
+                <option value="{{ collection_id }}" selected="">{{ collection_id }}</option>
+            </select>
+            <input hidden type="number" name="number" value="{{ number }}" class="form-control" id="number" placeholder="問題集番号">
+
+            {% for form in forms %}
+                    {% if forloop.counter > 2 %}
+                        {% if forloop.counter == 3 %}
+                            <label for="id_start_date">問題開始日</label>
+                        {% elif forloop.counter == 4 %}
+                            <label for="id_start_date">問題開始時刻</label>
+                        {% elif forloop.counter == 5 %}
+                            <label for="id_start_date">問題終了日</label>
+                        {% elif forloop.counter == 6 %}
+                            <label for="id_start_date">問題終了時刻</label>
+                        {% endif %}
+                        <p>{{ form }}</p>
+                    {% endif %}
+            {% endfor %}
+            <button type="submit" class="btn btn-secondary" style="margin-bottom: 3rem"
+                    onclick='return confirm("作成しますか？");'>
+                作成！
+            </button>
+        </form>
+    </div>
+{% endblock %}
