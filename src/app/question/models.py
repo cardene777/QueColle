@@ -157,7 +157,7 @@ class QuestionSchedule(models.Model):
     start_date = models.DateField(
         verbose_name="解答開始日",
         blank=False,
-        default=timezone.datetime.today()
+        default=timezone.datetime.now()
     )
 
     start_time = models.TimeField(
@@ -169,7 +169,7 @@ class QuestionSchedule(models.Model):
     end_date = models.DateField(
         verbose_name="解答終了日",
         blank=False,
-        default=timezone.datetime.today() + timezone.timedelta(days=30)
+        default=timezone.datetime.now() + timezone.timedelta(days=30)
     )
 
     end_time = models.TimeField(

@@ -16,7 +16,7 @@ class DataAdmin(admin.ModelAdmin):
 
 
 class QuestionScheduleAdmin(admin.ModelAdmin):
-    list_display = ('collection', 'number', 'start_time', 'end_time')
+    list_display = ('collection', 'number', 'start_date', 'start_time', 'end_date', 'end_time')
 
 
 admin.site.register(QuestionCollection, QuestionCollectionAdmin)

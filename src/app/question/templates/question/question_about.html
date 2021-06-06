@@ -111,49 +111,6 @@
         </div>
     </div>
 
-    {% if user.username == question_collection.user %}
-        <div class="container px-4">
-            <div class="row gy-2">
-                {% for number in number_data %}
-                    <div class="col-4">
-                        <form class="" action="{% url 'question:schedule' %}" method="POST">
-                            {% csrf_token %}
-                            <input hidden type="text" name="collection_id" value="{{ question_collection.id }}">
-                            <input hidden type="text" name="number" value="{{ forloop.counter }}">
-                            <input hidden type="text" name="message" value="create_schedule">
-                            {% if number %}
-                                <button type="submit" class="btn p-4"
-                                        style="display: block; width: 100%; height: 100%; margin-bottom: 1rem;
-                                        border-style: solid; border-width: 3px; border-color: gray;
-                                        padding-top: 2rem; background-color: antiquewhite;
-                                        border-radius: 4px;" >
-                                    <p style="display: inline; font-size: large; opacity: 0.7; vertical-align: middle;">
-                                        {% for data in number %}
-                                            <span>{{ data }}</span>
-                                            <br>
-                                        {% endfor %}
-                                    </p>
-                                </button>
-                            {% else %}
-                                <button type="submit" class="btn p-3"
-                                        style="display: block; width: 100%; height: 100%; margin-bottom: 1rem;
-                                        border-style: dotted; border-width: 3px; border-color: black;
-                                        border-radius: 4px;" >
-                                    <p style="margin: 1rem; font-size: x-large; opacity: 0.7;">
-                                        スケジュール作成
-                                        <i class="far fa-plus-square fa-lg"></i>
-                                    </p>
-                                </button>
-                            {% endif %}
-                        </form>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    {% endif %}
-
-    <hr>
-
     <div class="container">
         <hr>
         <h4>合計<span style="color: red">{{ length }}</span>問あります。</h4>
@@ -164,10 +121,100 @@
         {% else %}
             <p>特になし。</p>
         {% endif %}
-        <a href="{% url 'question:question' question_collection.id %}" class="btn"
-           style="background-color: #77c7e2; color: #303f42;" tabindex="-1" role="button">
-            問題スタート
-            <i class="fas fa-play"></i>
-        </a>
+        <hr>
     </div>
+
+
+    {% if user.username == question_collection.user %}
+        <div class="container px-4">
+            <div class="row gy-2">
+                {% for number in number_data %}
+                    <div class="col-4">
+                        {% if number %}
+                            <form class="" action="{% url 'question:schedule_detail' %}" method="POST">
+                                {% csrf_token %}
+                                <input hidden type="text" name="collection_id" value="{{ question_collection.id }}">
+                                {% if judges.pop == "ok" %}
+                                        <input hidden type="text" name="schedule_id" value="{{ number|slice:"1" }}">
+                                    <button type="submit" class="btn p-3"
+                                            style="display: block; width: 100%; height: 100%; margin-bottom: 1rem;
+                                            border-style: solid; border-width: 3px; border-color: gray;
+                                            background-color: antiquewhite;
+                                            border-radius: 4px;" >
+                                        <p style="display: inline; font-size: x-large; opacity: 0.7; vertical-align: middle;">
+{#                                            {% for data in number|slice:"1:" %}#}
+{#                                                {% if forloop.counter == "1" %}#}
+{#                                                {% else %}#}
+{#                                                    <span>{{ data }}</span>#}
+{#                                                    <br>#}
+{#                                                {% endif %}#}
+{#                                            {% endfor %}#}
+                                            実験群{{ forloop.counter }}
+                                            <br>
+                                            解答できます！
+                                        </p>
+                                    </button>
+                                {% else %}
+                                    {% if user.username != question_collection.user %}
+                                        <button disabled type="submit" class="btn p-3"
+                                                style="display: block; width: 100%; height: 100%; margin-bottom: 1rem;
+                                                border-style: solid; border-width: 3px; border-color: gray;
+                                                background-color: antiquewhite;
+                                                border-radius: 4px; opacity: 0.5" >
+                                            <p style="display: inline; font-size: x-large; opacity: 0.7; vertical-align: middle;">
+{#                                                {% for data in number %}#}
+{#                                                    <span>{{ data }}</span>#}
+{#                                                    <br>#}
+{#                                                {% endfor %}#}
+                                                実験群{{ forloop.counter }}
+                                                <br>
+                                                解答できません。
+                                            </p>
+                                        </button>
+                                    {% else %}
+                                        <input hidden type="text" name="schedule_id" value="{{ number|slice:"1" }}">
+                                        <button type="submit" class="btn p-3"
+                                                style="display: block; width: 100%; height: 100%; margin-bottom: 1rem;
+                                                border-style: solid; border-width: 3px; border-color: gray;
+                                                background-color: antiquewhite;
+                                                border-radius: 4px; opacity: 0.5" >
+                                            <p style="display: inline; font-size: x-large; opacity: 0.7; vertical-align: middle;">
+{#                                                {% for data in number|slice:"1:" %}#}
+{#                                                    {% if forloop.counter == "1" %}#}
+{#                                                    {% else %}#}
+{#                                                        <span>{{ data }}</span>#}
+{#                                                        <br>#}
+{#                                                    {% endif %}#}
+{#                                                {% endfor %}#}
+                                                実験群{{ forloop.counter }}
+                                                <br>
+                                                解答できません。
+                                            </p>
+                                        </button>
+                                    {% endif %}
+                                {% endif %}
+                            </form>
+                        {% else %}
+                            <p hidden>{{ judges.pop }}</p>
+                            <form class="" action="{% url 'question:schedule' %}" method="POST">
+                                {% csrf_token %}
+                                <input hidden type="text" name="collection_id" value="{{ question_collection.id }}">
+                                <input hidden type="text" name="number" value="{{ forloop.counter }}">
+                                <input hidden type="text" name="message" value="create">
+                                <button type="submit" class="btn p-3"
+                                        style="display: block; width: 100%; height: 100%; margin-bottom: 1rem;
+                                        border-style: dotted; border-width: 3px; border-color: black;
+                                        border-radius: 4px;" >
+                                    <p style="margin: 1rem; font-size: x-large; opacity: 0.7;">
+                                        スケジュール作成
+                                        <i class="far fa-plus-square fa-lg"></i>
+                                    </p>
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
