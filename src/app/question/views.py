@@ -10,6 +10,22 @@ from typing import List
 import random
 import time
 import csv
+from datetime import datetime
+
+
+def about_datas(start_date, start_time, end_date, end_time):
+    split_start_date = str(start_date).split("-")
+    split_start_time = str(start_time).split(":")
+    split_end_date = str(end_date).split("-")
+    split_end_time = str(end_time).split(":")
+    start = datetime(int(split_start_date[0]), int(split_start_date[1]), int(split_start_date[2]),
+                     int(split_start_time[0]), int(split_start_time[1]), int(split_start_time[2]))
+    end = datetime(int(split_end_date[0]), int(split_end_date[1]), int(split_end_date[2]),
+                   int(split_end_time[0]), int(split_end_time[1]), int(split_end_time[2]))
+    if start <= datetime.now() <= end:
+        return "ok"
+    else:
+        return "no"
 
 
 class QuestionHome(generic.ListView):
@@ -36,22 +52,24 @@ class QuestionAbout(generic.DetailView):
         context = super().get_context_data(**kwargs)
         collection_name = QuestionCollection.objects.get(id=self.kwargs['pk'])
         context["length"] = Question.objects.filter(collection=collection_name).count()
-        context["numbers"] = range(1, int(QuestionCollection.objects.get(collection=collection_name).numbers)+1)
+        context["numbers"] = range(1, int(QuestionCollection.objects.get(collection=collection_name).numbers) + 1)
         context["number_data"]: list = []
-        for number in context["numbers"]:
+        context["judges"]: list = []
+        for index, number in enumerate(context["numbers"]):
             data = QuestionSchedule.objects.filter(collection=collection_name).filter(number=number)
             if data:
-                # context["number_data"].append(data[0])
-                print(data[0].start_date)
                 start_date = data[0].start_date
                 start_time = data[0].start_time
                 end_date = data[0].end_date
                 end_time = data[0].end_time
-                datas: list = [f"{start_date}-{start_time}", f"~{end_date}-{end_time}"]
+                judges: str = about_datas(start_date, start_time, end_date, end_time)
+                context["judges"].append(judges)
+                datas: list = [data[0].id, f"{start_date}-{start_time}", f"~{end_date}-{end_time}"]
                 context["number_data"].append(datas)
-                print(context["number_data"])
                 continue
             context["number_data"].append(data)
+            context["judges"].append("no")
+        context["judges"].reverse()
         return context
 
 
@@ -264,21 +282,24 @@ def aggregation(requests, username):
 def plot(request, username, collection):
     user_collections: list = list(QuestionCollection.objects.filter(user=username).values_list("collection", flat=True))
     collections = QuestionCollection.objects.get(collection=collection)
-    collection_id:int = collections.id
+    collection_id: int = collections.id
     datas = Data.objects.filter(collection=collection_id)
     collection_number: int = collections.numbers
     collection_numbers: list = []
     collection_answer_time: list = []
     collection_judge: list = []
     for number in range(int(collection_number)):
-        collection_numbers.append(datas.filter(number=number+1))
-        collection_answer_time.append(datas.filter(number=number+1).values_list("answer_time", flat=True))
-        collection_judge.append(datas.filter(number=number+1).values_list("judge", flat=True))
-    collection_number_list: list = ",".join(list(map(str, range(1, int(collection_number)+1))))
+        collection_numbers.append(datas.filter(number=number + 1))
+        collection_answer_time.append(datas.filter(number=number + 1).values_list("answer_time", flat=True))
+        collection_judge.append(datas.filter(number=number + 1).values_list("judge", flat=True))
+    collection_number_list: list = ",".join(list(map(str, range(1, int(collection_number) + 1))))
     answer_time: list = []
     judges: list = []
     for time in collection_answer_time:
-        answer_time.append(str(sum(list(time))/10))
+        if sum(list(time)) == 0:
+            answer_time.append("0")
+        else:
+            answer_time.append(str(sum(list(time)) / 10))
 
     def change_judge(j):
         bool_dict: dict = {
@@ -287,12 +308,15 @@ def plot(request, username, collection):
         }
         change_j: int = bool_dict[j]
         return change_j
+
     for judge in collection_judge:
         judge = list(map(change_judge, judge))
-        judges.append(str((sum(judge)/len(judge))*100))
+        if len(judge) == 0:
+            judges.append("0")
+        else:
+            judges.append(str((sum(judge) / len(judge)) * 100))
     answer_time = ",".join(answer_time)
     judges = ",".join(judges)
-
 
     collection_about = QuestionCollection.objects.filter(collection=collection)
     collection_value: str = collection_about.values_list("collection", flat=True)[0]
@@ -317,31 +341,78 @@ def plot(request, username, collection):
 
 def schedule(request):
     if request.method == "POST":
-        if request.POST["message"] == "create_schedule":
-            collection_id: int = request.POST["collection_id"]
-            number: int = request.POST["number"]
-            forms = QuestionScheduleForm()
-            params: dict = {
-                "collection_id": collection_id,
-                "number": number,
-                "forms": forms
-            }
-        elif request.POST["message"] == "set_schedule":
-            collection_id: int = request.POST["collection_id"]
-            try:
-                model = QuestionSchedule.objects.filter(
-                collection=collection_id).filter(number=request.POST["number"])[0]
-                data = QuestionScheduleForm(request.POST, instance=model)
-            except:
-                data = QuestionScheduleForm(request.POST, instance=QuestionSchedule())
-            data.save()
-            question_collects = QuestionCollection.objects.filter(id=collection_id)[0]
-            length: int = Question.objects.filter(collection=collection_id).count()
-            numbers: int = range(1, int(QuestionCollection.objects.get(id=collection_id).numbers) + 1)
-            params: dict = {
-                "question_collection": question_collects,
-                "length": length,
-                "numbers": numbers
-            }
-            return render(request, 'question/question_about.html', params)
+        collection_id: int = request.POST["collection_id"]
+        number: int = request.POST["number"]
+        forms = QuestionScheduleForm()
+        params: dict = {
+            "collection_id": collection_id,
+            "number": number,
+            "forms": forms,
+            "message": request.POST["message"]
+        }
         return render(request, 'question/create_schedule.html', params)
+
+
+def schedule_create(request):
+    collection_id: int = request.POST["collection_id"]
+    try:
+        model = QuestionSchedule.objects.filter(
+            collection=collection_id).filter(number=request.POST["number"])[0]
+        data = QuestionScheduleForm(request.POST, instance=model)
+    except:
+        data = QuestionScheduleForm(request.POST, instance=QuestionSchedule())
+    data.save()
+    question_collects = QuestionCollection.objects.filter(id=collection_id)[0]
+    length: int = Question.objects.filter(collection=collection_id).count()
+    numbers: int = range(1, int(QuestionCollection.objects.get(id=collection_id).numbers) + 1)
+    number_data: list = []
+    judges: list = []
+    for index, number in enumerate(numbers):
+        data = QuestionSchedule.objects.filter(collection=collection_id).filter(number=number)
+        if data:
+            start_date = data[0].start_date
+            start_time = data[0].start_time
+            end_date = data[0].end_date
+            end_time = data[0].end_time
+            judge: str = about_datas(start_date, start_time, end_date, end_time)
+            judges.append(judges)
+            datas: list = [data[0].id, f"{start_date}-{start_time}", f"~{end_date}-{end_time}"]
+            number_data.append(datas)
+            continue
+        number_data.append(data)
+        judges.append("no")
+    judges.reverse()
+    params: dict = {
+        "question_collection": question_collects,
+        "length": length,
+        "numbers": numbers,
+        "number_data": number_data,
+        "judges": judges
+    }
+    if request.POST["message"] == "update":
+        questions_count = Question.objects.filter(collection=collection_id).count()
+        collection_user: str = QuestionCollection.objects.filter(id=collection_id)[0].user
+        params: dict = {
+            "schedule": model,
+            "questions_count": questions_count,
+            "collection_id": collection_id,
+            "collection_user": collection_user
+        }
+        return render(request, 'question/schedule_detail.html', params)
+    return render(request, 'question/question_about.html', params)
+
+
+def schedule_detail(request):
+    schedule_id: str = request.POST["schedule_id"]
+    schedule_id: int = int(schedule_id.replace("[", "").replace("]", ""))
+    schedule = QuestionSchedule.objects.filter(id=schedule_id)[0]
+    collection_id = request.POST["collection_id"]
+    questions_count = Question.objects.filter(collection=collection_id).count()
+    collection_user: str = QuestionCollection.objects.filter(id=collection_id)[0].user
+    params: dict = {
+        "schedule": schedule,
+        "questions_count": questions_count,
+        "collection_id": collection_id,
+        "collection_user": collection_user
+    }
+    return render(request, 'question/schedule_detail.html', params)

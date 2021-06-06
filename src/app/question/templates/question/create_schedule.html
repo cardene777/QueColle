@@ -31,14 +31,18 @@
         </div>
     </div>
     <div class="container">
-        <form action="{% url 'question:schedule' %}" method="POST">
+        <form action="{% url 'question:schedule_create' %}" method="POST">
             {% csrf_token %}
-            <input hidden type="text" name="message" value="set_schedule">
+            {% if message == "update" %}
+                <input hidden type="text" name="message" value="update">
+            {% else %}
+                <input hidden type="text" name="message" value="set_schedule">
+            {% endif %}
             <input hidden type="text" name="collection_id" value="{{ collection_id }}">
             <select hidden name="collection" class="form-control" id="collection" placeholder="問題集名" required="">
                 <option value="{{ collection_id }}" selected="">{{ collection_id }}</option>
             </select>
-            <input hidden type="number" name="number" value="{{ number }}" class="form-control" id="number" placeholder="問題集番号">
+            <input hidden type="number" name="number" value="{{ number }}" class="form-control" id="number">
 
             {% for form in forms %}
                     {% if forloop.counter > 2 %}
