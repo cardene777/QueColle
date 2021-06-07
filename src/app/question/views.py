@@ -96,6 +96,18 @@ class QuestionUpdate(generic.UpdateView):
         return context
 
 
+class QuestionCollectionDelete(generic.DeleteView):
+    template_name = "question/question_collection_delete.html"
+    model = QuestionCollection
+    form_class = QuestionCollectionForm
+    success_url = reverse_lazy('question:home')
+
+    def get_context_data(self, **kwargs):
+        context = super(QuestionCollectionDelete, self).get_context_data()
+        context["collection_id"] = QuestionCollection.objects.get(id=self.kwargs["pk"]).id
+        return context
+
+
 class QuestionDelete(generic.DeleteView):
     template_name = "question/question_delete.html"
     model = Question
@@ -104,6 +116,18 @@ class QuestionDelete(generic.DeleteView):
     def get_context_data(self, **kwargs):
         context = super(QuestionDelete, self).get_context_data()
         collection_name: str = Question.objects.get(id=self.kwargs["pk"]).collection
+        context["collection_id"] = QuestionCollection.objects.get(collection=collection_name).id
+        return context
+
+
+class ScheduleDelete(generic.DeleteView):
+    template_name = "question/schedule_delete.html"
+    model = QuestionSchedule
+    success_url = reverse_lazy('question:home')
+
+    def get_context_data(self, **kwargs):
+        context = super(ScheduleDelete, self).get_context_data()
+        collection_name: str = QuestionSchedule.objects.get(id=self.kwargs["pk"]).collection
         context["collection_id"] = QuestionCollection.objects.get(collection=collection_name).id
         return context
 
