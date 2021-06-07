@@ -139,9 +139,9 @@ LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'question:home'
 LOGOUT_REDIRECT_URL = 'question:home'
 
-DEBUG = True
+# DEBUG = True
 
-if DEBUG == True:
+if DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',

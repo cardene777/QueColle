@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}問題集削除{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="bg-light p-3 p-sm-5 my-4 rounded">
+            <h1 class="display-4">問題集削除</h1>
+            <hr class="my-4">
+            <p>問題集を削除できます...</p>
+            <a href="{% url 'question:about' collection_id %}" class="btn"
+               style="background-color: #77c7e2; color: #303f42;" tabindex="-1" role="button">
+                戻る
+                <i class="fas fa-undo"></i>
+            </a>
+        </div>
+    </div>
+    <div class="container">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="accordion" id="accordionExample">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            問題集名
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                        <div class="accordion-body">
+                            {{ object.collection }}
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            問題集概要
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                        <div class="accordion-body">
+                            {{ object.about }}
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingThree">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            注意事項
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse show" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                        <div class="accordion-body">
+                            {{ object.attention }}
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingFour">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                            スケジュール数
+                        </button>
+                    </h2>
+                    <div id="collapseThree" class="accordion-collapse collapse show" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
+                        <div class="accordion-body">
+                            {{ object.numbers }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <img src="{{ object.image.url }}" class="card-img" alt="問題集画像"
+                 style="width: 300px; height: auto; margin-bottom: 1rem">
+            <br>
+
+            <input type="submit" class="btn btn-secondary" value="削除" style="margin-bottom: 3rem">
+        </form>
+    </div>
+{% endblock %}

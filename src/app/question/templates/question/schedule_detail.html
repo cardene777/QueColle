@@ -30,6 +30,11 @@
                             <i class="far fa-edit"></i>
                     </button>
                 </form>
+                <a href="{% url 'question:schedule_delete' schedule.id %}" class="btn"
+                   style="background-color: #77c7e2; color: #303f42;" tabindex="-1" role="button">
+                    削除
+                    <i class="fas fa-trash-alt"></i>
+                </a>
             {% endif %}
         </div>
     </div>

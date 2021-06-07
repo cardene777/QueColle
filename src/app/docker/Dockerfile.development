@@ -20,7 +20,7 @@ WORKDIR $APP_HOME
 # install dependencies
 
 RUN apk update && \
-    apk add postgresql-dev gcc python3-dev musl-dev libpq && \
+    apk add postgresql-dev gcc python3-dev musl-dev libpq jpeg-dev zlib-dev && \
     apk add curl && \
     pip install --upgrade pip && \
     pip install psycopg2
@@ -33,6 +33,8 @@ ENV PATH="/root/.poetry/bin:$PATH"
 
 RUN poetry config virtualenvs.create false && \
     poetry install
+
+
 
 # copy entrypoint shell file
 COPY docker/entrypoint.development.sh $APP_HOME
