@@ -1,12 +1,21 @@
 # QueColle
+
+```sh
 question collection
+```
 
 ## Command
+
+```sh
 python manage.py makemigrations && python manage.py migrate && python manage.py createsuperuser
+```
 
+```sh
 python manage.py loaddata question/fixture/question_collection.json && python manage.py loaddata question/fixture/question.json && python manage.py loaddata question/fixture/data.json
-
+```
+```sh
 python manage.py runserver
+```
 
 ## 参考サイト
 [docker-composeでDjango開発環境を構築する
